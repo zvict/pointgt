@@ -59,9 +59,8 @@
 
   <title>PointGT: Simultaneous Geometry and Texture Editing for Point-Based Representations</title>
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="static/images/favicon.png">
-  <link rel="apple-touch-icon" href="static/images/favicon.png">
+  <!-- Favicon (color palette emoji) -->
+  <link rel="icon" type="image/svg+xml" href="static/images/favicon.svg">
 
   <!-- Critical CSS -->
   <link rel="stylesheet" href="static/css/bulma.min.css">
@@ -177,7 +176,7 @@
     <div class="container" style="max-width:1200px;">
       <div class="hero-body">
         <img src="static/images/teaser.png" alt="PointGT overview teaser" style="display:block;width:100%;height:auto;"/>
-        <h2 class="subtitle has-text-centered" style="margin-top:0.3rem;">
+        <h2 class="subtitle has-text-centered" style="margin-top:-2rem;">
           <b>Overview.</b> Given multi-view captures (left), PointGT reconstructs a point-based 3D representation and learns a global UV mapping onto 2D charts (middle left). By maintaining a deformation-aware correspondence between canonical and deformed space, PointGT ensures persistent texture edits under non-rigid geometry changes. Users can simultaneously deform and retexture a reconstructed dress (top) or a real-world table (bottom), with geometry and appearance fully decoupled and editable.
         </h2>
       </div>
@@ -193,7 +192,7 @@
           <h2 class="title is-3">Abstract</h2>
           <div class="content has-text-justified">
             <p>
-              We present PointGT, a point-based 3D representation that enables simultaneous editing of object geometry and appearance. Existing reconstruction and view synthesis techniques produce volumetric 3D representations that are high-quality and photorealistic, but are difficult to edit. In particular, recent efforts to enable texture editing for 3D Gaussian Splatting representations are not compatible with geometry edits and deformations. Our method combines a point-based representation that is well-suited for geometry deformations with a learned UV mapping technique that enables high-resolution texture editing. We demonstrate that PointGT enables fine-grained editing of both geometry and appearance in point-based neural representations while maintaining high rendering quality.
+              We present PointGT, a point-based 3D representation that enables simultaneous editing of object geometry and appearance. Existing reconstruction and view synthesis techniques produce volumetric 3D representations that are high-quality and photorealistic, but are difficult to edit. In particular, recent efforts to enable texture editing for 3D Gaussian Splatting representations are not compatible with geometry edits and deformations. Our method combines an <b>attention-based point representation</b> that is well-suited for geometry deformations with a learned UV mapping technique that enables high-resolution texture editing. We demonstrate that PointGT enables fine-grained editing of both geometry and appearance in point-based neural representations while maintaining high rendering quality.
             </p>
           </div>
         </div>
@@ -239,7 +238,7 @@
           <img src="static/images/pointgt-vs-gs.png" alt="Gaussian Splatting vs. PointGT under deformation" style="width:100%;height:auto;"/>
           <div class="content has-text-justified" style="margin-top:1rem;">
             <p>
-              Comparison of geometry deformations of textured Gaussian splatting methods and PointGT. <b>Left:</b> Since each Gaussian is a linear primitive, these methods struggle to preserve surface smoothness under large non-rigid deformations. <b>Right:</b> PointGT maintains surface continuity after deformation by predicting ray&ndash;surface points via attention-based interpolation on a point cloud.
+              <b>Left:</b> Since each Gaussian is a linear primitive, these methods struggle to preserve surface smoothness under large non-rigid deformations. <b>Right:</b> PointGT maintains surface continuity after deformation by predicting ray&ndash;surface points via attention-based interpolation on a point cloud.
             </p>
           </div>
         </div>
@@ -253,11 +252,11 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column is-full">
-          <h2 class="title is-3 has-text-centered">How we maintain the UV mapping after geometry deformation</h2>
+          <h2 class="title is-3 has-text-centered line-gap">How to maintain UV mapping during geometry deformation</h2>
           <img src="static/images/method-attn-translate.png" alt="Deformation-aware canonical correspondence" style="width:100%;height:auto;"/>
           <div class="content has-text-justified" style="margin-top:1rem;">
             <p>
-              Illustration of the deformation-aware canonical correspondence. In deformed space (left), a ray intersects the deformed point cloud to predict a surface point (red). Each deformed neighbor (dark blue) has a stored canonical counterpart (light blue); the per-neighbor displacements (dashed gray arrow) are fused with the deformed-space attention weights to transfer the intersection back to canonical space (middle), where UV lookup retrieves the texture (right).
+              In deformed space (left), a ray intersects the deformed point cloud to predict a surface point (red). Each deformed neighbor (dark blue) has a stored canonical counterpart (light blue); the per-neighbor displacements (dashed gray arrow) are fused with the deformed-space attention weights to transfer the intersection back to canonical space (middle), where UV lookup retrieves the texture (right).
             </p>
           </div>
         </div>
