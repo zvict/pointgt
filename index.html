@@ -139,11 +139,11 @@
             </div>
 
             <div class="column has-text-centered">
-              <div class="publication-links" style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;">
+              <div class="publication-links" style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1rem;">
                 <!-- Paper PDF (file uploaded by author later) -->
                 <span class="link-block">
                   <a href="static/pdfs/paper.pdf" target="_blank"
-                     class="external-link button is-normal is-rounded is-dark">
+                     class="external-link button is-normal is-rounded is-dark" style="margin:0;">
                     <span class="icon"><i class="fas fa-file-pdf"></i></span>
                     <span>Paper</span>
                   </a>
@@ -174,10 +174,10 @@
 
   <!-- Teaser image -->
   <section class="hero teaser">
-    <div class="container" style="max-width:1440px;">
+    <div class="container" style="max-width:1200px;">
       <div class="hero-body">
         <img src="static/images/teaser.png" alt="PointGT overview teaser" style="display:block;width:100%;height:auto;"/>
-        <h2 class="subtitle has-text-centered" style="margin-top:1rem;">
+        <h2 class="subtitle has-text-centered" style="margin-top:0.3rem;">
           <b>Overview.</b> Given multi-view captures (left), PointGT reconstructs a point-based 3D representation and learns a global UV mapping onto 2D charts (middle left). By maintaining a deformation-aware correspondence between canonical and deformed space, PointGT ensures persistent texture edits under non-rigid geometry changes. Users can simultaneously deform and retexture a reconstructed dress (top) or a real-world table (bottom), with geometry and appearance fully decoupled and editable.
         </h2>
       </div>
@@ -202,12 +202,10 @@
   </section>
   <!-- End abstract -->
 
-  <!-- Video section -->
+  <!-- Editing Results -->
   <section class="section">
-    <h2 class="title is-3 has-text-centered">Video</h2>
-    <!-- Results montage (1.5x wider) -->
+    <h2 class="title is-3 has-text-centered">Editing Results</h2>
     <div class="container" style="max-width:1440px;">
-      <h3 class="title is-5 has-text-centered" style="margin-top:1rem;">Results</h3>
       <video autoplay controls muted loop playsinline preload="metadata" style="display:block;width:100%;height:auto;">
         <source src="static/videos/video-results.mp4" type="video/mp4">
       </video>
@@ -215,9 +213,13 @@
         Simultaneous geometry and texture editing results across multiple scenes.
       </h2>
     </div>
-    <!-- Interactive editing demo (standard width) -->
-    <div class="container is-max-desktop" style="margin-top:2.5rem;">
-      <h3 class="title is-5 has-text-centered">Interactive Editing Demo</h3>
+  </section>
+  <!-- End editing results -->
+
+  <!-- Interactive Editing Demo -->
+  <section class="section">
+    <h2 class="title is-3 has-text-centered">Interactive Editing Demo</h2>
+    <div class="container is-max-desktop">
       <video controls preload="metadata" style="display:block;width:100%;height:auto;">
         <source src="static/videos/demo.mp4" type="video/mp4">
       </video>
@@ -226,7 +228,7 @@
       </h2>
     </div>
   </section>
-  <!-- End video section -->
+  <!-- End interactive editing demo -->
 
   <!-- Gaussian Splatting vs. attention-based point rendering -->
   <section class="section hero is-light">
@@ -251,7 +253,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column is-full">
-          <h2 class="title is-3 has-text-centered">Method</h2>
+          <h2 class="title is-3 has-text-centered">How we maintain the UV mapping after geometry deformation</h2>
           <img src="static/images/method-attn-translate.png" alt="Deformation-aware canonical correspondence" style="width:100%;height:auto;"/>
           <div class="content has-text-justified" style="margin-top:1rem;">
             <p>
