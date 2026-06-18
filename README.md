@@ -4,5 +4,7 @@ Project website for **PointGT: Simultaneous Geometry and Texture Editing for Poi
 
 Live site: https://zvict.github.io/pointgt/
 
+Code will be released soon!
+
 ## Credit
 Built on the [Academic Project Page Template](https://github.com/eliahuhorwitz/Academic-project-page-template) (CC BY-SA 4.0).
