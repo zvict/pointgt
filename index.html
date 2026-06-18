@@ -132,11 +132,14 @@
             </div>
 
             <div class="is-size-5 publication-authors">
-              <span class="author-block"><sup>1</sup>Simon Fraser University&nbsp;&nbsp;&nbsp;<sup>2</sup>Google DeepMind<br>ECCV 2026</span>
+              <span class="author-block"><sup>1</sup>Simon Fraser University&nbsp;&nbsp;&nbsp;<sup>2</sup>Google DeepMind</span>
+            </div>
+            <div class="has-text-centered" style="margin-top:0.7rem;margin-bottom:0.4rem;">
+              <span style="display:inline-block;padding:0.18em 0.8em;border-radius:8px;background:#2563eb;color:#fff;font-weight:800;font-size:1.55rem;letter-spacing:0.03em;">ECCV 2026</span>
             </div>
 
             <div class="column has-text-centered">
-              <div class="publication-links">
+              <div class="publication-links" style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;">
                 <!-- Paper PDF (file uploaded by author later) -->
                 <span class="link-block">
                   <a href="static/pdfs/paper.pdf" target="_blank"
@@ -171,9 +174,9 @@
 
   <!-- Teaser image -->
   <section class="hero teaser">
-    <div class="container is-max-desktop">
+    <div class="container" style="max-width:1440px;">
       <div class="hero-body">
-        <img src="static/images/teaser.png" alt="PointGT overview teaser" style="width:100%;height:auto;"/>
+        <img src="static/images/teaser.png" alt="PointGT overview teaser" style="display:block;width:100%;height:auto;"/>
         <h2 class="subtitle has-text-centered" style="margin-top:1rem;">
           <b>Overview.</b> Given multi-view captures (left), PointGT reconstructs a point-based 3D representation and learns a global UV mapping onto 2D charts (middle left). By maintaining a deformation-aware correspondence between canonical and deformed space, PointGT ensures persistent texture edits under non-rigid geometry changes. Users can simultaneously deform and retexture a reconstructed dress (top) or a real-world table (bottom), with geometry and appearance fully decoupled and editable.
         </h2>
@@ -200,36 +203,48 @@
   <!-- End abstract -->
 
   <!-- Video section -->
-  <section class="section hero is-small">
-    <div class="hero-body">
-      <div class="container is-max-desktop">
-        <h2 class="title is-3 has-text-centered">Video</h2>
-        <div class="columns is-centered">
-          <div class="column is-full">
-            <h3 class="title is-5 has-text-centered">Results</h3>
-            <video autoplay controls muted loop playsinline preload="metadata" style="width:100%;height:auto;">
-              <source src="static/videos/video-results.mp4" type="video/mp4">
-            </video>
-            <h2 class="subtitle has-text-centered" style="margin-top:0.75rem;">
-              Simultaneous geometry and texture editing results across multiple scenes.
-            </h2>
-          </div>
-        </div>
-        <div class="columns is-centered" style="margin-top:2rem;">
-          <div class="column is-full">
-            <h3 class="title is-5 has-text-centered">Interactive Editing Demo</h3>
-            <video controls preload="metadata" style="width:100%;height:auto;">
-              <source src="static/videos/demo.mp4" type="video/mp4">
-            </video>
-            <h2 class="subtitle has-text-centered" style="margin-top:0.75rem;">
-              Screen recording of the interactive geometry and texture editing workflow.
-            </h2>
+  <section class="section">
+    <h2 class="title is-3 has-text-centered">Video</h2>
+    <!-- Results montage (1.5x wider) -->
+    <div class="container" style="max-width:1440px;">
+      <h3 class="title is-5 has-text-centered" style="margin-top:1rem;">Results</h3>
+      <video autoplay controls muted loop playsinline preload="metadata" style="display:block;width:100%;height:auto;">
+        <source src="static/videos/video-results.mp4" type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered" style="margin-top:0.75rem;">
+        Simultaneous geometry and texture editing results across multiple scenes.
+      </h2>
+    </div>
+    <!-- Interactive editing demo (standard width) -->
+    <div class="container is-max-desktop" style="margin-top:2.5rem;">
+      <h3 class="title is-5 has-text-centered">Interactive Editing Demo</h3>
+      <video controls preload="metadata" style="display:block;width:100%;height:auto;">
+        <source src="static/videos/demo.mp4" type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered" style="margin-top:0.75rem;">
+        Screen recording of the interactive geometry and texture editing workflow.
+      </h2>
+    </div>
+  </section>
+  <!-- End video section -->
+
+  <!-- Gaussian Splatting vs. attention-based point rendering -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3 has-text-centered">Gaussian Splatting vs. Attention-Based Point Rendering</h2>
+          <img src="static/images/pointgt-vs-gs.png" alt="Gaussian Splatting vs. PointGT under deformation" style="width:100%;height:auto;"/>
+          <div class="content has-text-justified" style="margin-top:1rem;">
+            <p>
+              Comparison of geometry deformations of textured Gaussian splatting methods and PointGT. <b>Left:</b> Since each Gaussian is a linear primitive, these methods struggle to preserve surface smoothness under large non-rigid deformations. <b>Right:</b> PointGT maintains surface continuity after deformation by predicting ray&ndash;surface points via attention-based interpolation on a point cloud.
+            </p>
           </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- End video section -->
+  <!-- End GS vs attention -->
 
   <!-- Method -->
   <section class="section">
@@ -237,10 +252,10 @@
       <div class="columns is-centered">
         <div class="column is-full">
           <h2 class="title is-3 has-text-centered">Method</h2>
-          <img src="static/images/pipeline.png" alt="PointGT pipeline" style="width:100%;height:auto;"/>
+          <img src="static/images/method-attn-translate.png" alt="Deformation-aware canonical correspondence" style="width:100%;height:auto;"/>
           <div class="content has-text-justified" style="margin-top:1rem;">
             <p>
-              PointGT reconstructs a scene as a learnable point-based representation and jointly learns a global UV mapping that flattens the surface onto 2D texture charts. A deformation-aware correspondence links the canonical and deformed configurations, so edits authored in texture space stay attached to the surface as the geometry is deformed. This decouples geometry from appearance, allowing high-resolution texture edits and non-rigid geometry edits to be applied simultaneously while preserving rendering quality.
+              Illustration of the deformation-aware canonical correspondence. In deformed space (left), a ray intersects the deformed point cloud to predict a surface point (red). Each deformed neighbor (dark blue) has a stored canonical counterpart (light blue); the per-neighbor displacements (dashed gray arrow) are fused with the deformed-space attention weights to transfer the intersection back to canonical space (middle), where UV lookup retrieves the texture (right).
             </p>
           </div>
         </div>
@@ -248,42 +263,6 @@
     </div>
   </section>
   <!-- End method -->
-
-  <!-- Results carousel -->
-  <section class="hero is-small is-light">
-    <div class="hero-body">
-      <div class="container">
-        <h2 class="title is-3 has-text-centered">Results</h2>
-        <div id="results-carousel" class="carousel results-carousel">
-          <div class="item">
-            <img src="static/images/results/blossom.png" alt="Edited blossom result" loading="lazy"/>
-            <h2 class="subtitle has-text-centered">Blossom &mdash; geometry and texture edited with PointGT.</h2>
-          </div>
-          <div class="item">
-            <img src="static/images/results/dress.png" alt="Edited dress result" loading="lazy"/>
-            <h2 class="subtitle has-text-centered">Dress &mdash; texture edits stay attached under deformation.</h2>
-          </div>
-          <div class="item">
-            <img src="static/images/results/emperor-fish.png" alt="Edited emperor-fish result" loading="lazy"/>
-            <h2 class="subtitle has-text-centered">Emperor fish &mdash; high-resolution retexturing.</h2>
-          </div>
-          <div class="item">
-            <img src="static/images/results/flag.png" alt="Edited flag result" loading="lazy"/>
-            <h2 class="subtitle has-text-centered">Flag &mdash; appearance preserved across non-rigid motion.</h2>
-          </div>
-          <div class="item">
-            <img src="static/images/results/rexy.png" alt="Edited rexy result" loading="lazy"/>
-            <h2 class="subtitle has-text-centered">Rexy &mdash; simultaneous geometry and texture editing.</h2>
-          </div>
-          <div class="item">
-            <img src="static/images/results/albedo.png" alt="Albedo editing result" loading="lazy"/>
-            <h2 class="subtitle has-text-centered">Albedo editing &mdash; recoloring a reconstructed object.</h2>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- End results carousel -->
 
   <!-- BibTeX citation -->
   <section class="section" id="BibTeX">
