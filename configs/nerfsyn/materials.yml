@@ -1,0 +1,267 @@
+# Paths below are release-relative. This is the archived config with only its
+# path fields rewritten; every other key is unchanged, so it merges against
+# configs/{default,default_uv}.yml exactly as it did when the checkpoint was trained.
+index: "materials-f1-unet-d2rZ-30k-BKGAPPEND-embedv-IN10k-K20-KQVl2-q5k13v2-scoreNoAct-dropout03cosine-load-if1-ft"
+load_path: "checkpoints/nerfsyn/materials/base.pth"
+save_dir: "./experiments/nerfsyn/materials" # folder to save the model to
+use_amp: true # use automatic mixed precision
+max_num_pts: 30000 # upper bound of total number of points, set to -1 to disable
+rnd_background: false
+rnd_background_use_dumb_constant: false
+# original_control_points_path: "data/nerf_synthetic/materials/random_init_points3d.ply"
+# deformed_control_points_folder: "data/nerf_synthetic/materials/frames/"
+# eval_deform_frames: [1, 10, 22]
+influ_scores_fuse_type: "add"
+wandb:  # inert: this release has no wandb integration (train.py / train_uv.py never import it)
+  enabled: false  # nothing reads this block; setting it true logs nothing
+  project: "pointgt"  # wandb project name
+  entity: null  # wandb entity (username or team name), set to null for personal account
+  name: null  # experiment name, set to null to use auto-generated name
+  tags: ["nerf_synthetic", "materials"]  # list of tags for the experiment
+  notes: ""  # notes about the experiment
+  config: {}  # additional config to log to wandb
+dataset:
+  path: "data/nerf_synthetic/materials"
+  factor: 1
+  batch_size: 100
+  load_gt_depth: false
+  save_gt_sp: false
+  gt_depth_dir: "2dgs/nerf_synthetic_no_limit/materials/test/ours_30000/vis" # path to load the ground truth depth from
+  patches:
+    width: 16
+    height: 16
+geoms:
+  # rays:
+  #   perturb: true
+  #   perturb_sigma_factor: 1.0
+  points:
+    load_path: "checkpoints/nerfsyn/init/materials.ply"  # path to load the initial point cloud from, set to "" to disable
+    select_k: 20  # number of top-k nearby points to select from the point cloud for each ray
+    # select_k_rnd: true
+    # select_k_max: 100
+    select_k_type: "d2r_z"
+    drop_points_max_ratio: 0.3
+    drop_points_max_ratio_schedule_type: "cosine"  # "none", "cosine", or "linear" - scheduler for dropout ratio (decays from max_ratio to 0)
+    drop_points_max_ratio_start_step: 0  # start step for dropout ratio scheduling
+    drop_points_max_ratio_end_step: -1  # end step for dropout ratio scheduling (-1 means use training.steps)
+    init_num: 10000
+    influ_init_func: "ones"
+    influ_init_val: 1.0 # initial influence score of each point
+    project: true
+    add_type: "clone"
+    add_sample_type: "acc-coord-grad-norm-cnt-max"
+    save_added_points: true
+    init_scale: [1.2, 1.2, 1.2] # initial scale of the point cloud, normalized by the coord_scale
+    init_center: [0.0, 0.0, 0.0]  # initial center of the point cloud, normalized by the coord_scale
+    # influ_min: -999
+    # influ_max: 999
+    # influ_act: "none"
+    # influ_init_func: "ones"
+    use_bkg_points: false
+    bkg_points_num: 10000
+    bkg_points_init_scale: [5.0, 5.0, 5.0]
+    bkg_points_influ_init_val: -1.0
+    bkg_points_embedv_learn: false
+    bkg_points_alpha_blend: false
+    bkg_points_add_noise: false  # add random Gaussian noise to background points every step
+    bkg_points_noise_std: 0.0  # standard deviation of Gaussian noise for background points
+    bkg_points_noise_max_clip: null  # maximum absolute value to clip noise (null = no clipping)
+    use_bkg_points_pc_feats_mlp: false  # use MLP to generate bkg_points_pc_feats from background color instead of learned feature vectors
+    use_bkg_points_pc_feats_mlp: true
+    bkg_points_pc_feats_encode_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      stop_gradient: false
+      pe_scale: 1.0
+    bkg_points_pc_feats_mlp_config:
+      otype: "FullyFusedMLP"
+      activation: "ReLU"
+      output_activation: "None"
+      n_neurons: 64
+      n_hidden_layers: 2
+  background:
+    learn_bkg_token: false
+    constant: 5.0 # constant background score
+models:
+  # topk_eps: 1.0e-6
+  # bkg_attn_act: "none"
+  # bkg_attn_scale: 1.0
+  normalize_topk_attn: false # normalize the top-k attention weights after softmax
+  point_on_ray_loss_type: "distance2"
+  point_on_ray_loss_mask_thresh: 0.5
+  point_on_ray_loss_norm_topk_attn: false
+  point_on_ray_loss_detach_points: true
+  point_on_ray_loss_use_gt_mask: true
+  point_on_ray_loss_erose_mask: true
+  point_on_ray_loss_erose_mask_iters: 1
+  point_to_sp_loss_mask_thresh: 0.5
+  point_to_sp_loss_distance_thresh: -1
+  point_to_sp_loss_norm_topk_attn: true
+  point_to_sp_loss_fuse_type: "position"
+  point_to_sp_loss_detach_attn: true
+  attn:
+    # append sphere intersection point as background point
+    append_bkg_points: true  # if true, append ray-sphere intersection point to topK points for each ray
+    # Note: sphere_radius and sphere_center moved to geoms.points.bkg_sphere_radius/bkg_sphere_center (unified config)
+    append_bkg_points_use_embedv: true  # if true, use a learned embedding for the appended background point
+    append_bkg_points_embedv_init_type: "randn"  # initialization type: "randn", "zeros", or "ones"
+    append_bkg_points_embedv_learn: true  # whether the embedding is learnable
+    append_bkg_points_alpha_blend: false  # if true, alpha blend the appended background point with background color
+    bkg_exp_scaler: false  # if true, use a learnable scaler to scale exp(bkg_score) in softmax attention
+    bkg_exp_scaler_init: 1.0  # initial value for the bkg_exp_scaler (default: 1.0, no scaling effect)
+    scale_bkg_token_by_num_bkg_points: false  # if true, scale the background token by the number of foreground points
+    scale_bkg_token_by_num_bkg_points_init: 1.0  # initial value of the scaler for the background token
+    shared_network: false
+    k_type: 13
+    q_type: 5
+    v_type: 2
+    output_dim_k: 128
+    output_dim_q: 128
+    output_dim_v: 64
+    score_act: "none"
+    score_scale: 1.0
+    use_score_scaler: false
+    # use_tcnn_encoder: false
+    # select_scores_topk: 20
+    scale_scores_by_dist: false
+    attn_score_dist_strategy: 'gamma'
+    attn_dist_power: 2
+    attn_dist_near_exp: 0 
+    attn_dist_far_exp: -3.0
+    attn_dist_min_spread: 2
+    scale_scores_by_dist_decay: 10.0
+    dist_prior_floor: 0.0
+    dist_prior_gamma: 1.0
+    network_k_config:
+      otype: "FullyFusedMLP"
+      activation: "LeakyReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 2
+    network_q_config:
+      otype: "FullyFusedMLP"
+      activation: "LeakyReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 2
+    network_v_config:
+      otype: "FullyFusedMLP"
+      activation: "LeakyReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 2
+    encode_k_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      pe_scale: 1.0
+    encode_q_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      pe_scale: 1.0
+    encode_v_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      pe_scale: 1.0
+  unet: # the UNet
+    use: true
+    last_act: "none"
+    # inp_scale: 10.0
+  topk_mlp:
+    learn: false
+    type: 2
+    minus_mean: false
+    learn_bias: false
+    loss_type: "bce"
+    quantile: 0.5
+    weight_quantile: true
+    start_step: -1
+    logit_scale: 1.0
+    means: []
+    init_weights: [2.0e-3]
+    weight_act: "none"
+    act_idxs: []
+training:
+  # topk_loss_weight: 0.01
+  point_on_ray_loss_start: 0
+  point_on_ray_loss_stop: 0
+  point_on_ray_loss_weight: 0.0
+  point_on_ray_loss_scale_by_rgb_loss: false
+  point_on_ray_loss_schedule: "constant"  # schedule type: constant, cosine, cosine_decay, cosine_warmup
+  point_to_sp_loss_start: 0
+  point_to_sp_loss_stop: 0
+  point_to_sp_loss_weight: 0.0
+  gt_sp_loss_start: 0
+  gt_sp_loss_stop: 0
+  gt_sp_loss_weight: 0.0
+  gt_sp_loss_scale_by_rgb_loss: false
+  gt_sp_loss_exclude_boundary: true
+  gt_sp_loss_boundary_width: 5
+  prune_steps: 500  # interval to prune the point cloud
+  prune_start: 10000  # start pruning after this step
+  prune_stop: 250000  # stop pruning after this step
+  prune_thresh: 1.01e-5  # influence score threshold to prune the point cloud
+  prune_thresh_list: []
+  prune_steps_list: []
+  prune_max_num: 2000  # maximum number of points to prune
+  prune_max_num_step: 50000  # maximum step to limit the number of points to prune
+  prune_type: "<" # prune points with influence scores smaller than the threshold ("<") or larger than the threshold (">")
+  add_steps: 1000 # interval to add new points
+  add_start: 15000  # start adding new points after this step
+  add_stop: 200000 # stop adding new points after this step
+  add_num: 1000 # number of points to add each time
+  losses: # loss weights
+    mse: 1.0
+    lpips: 0.01
+    lpips_alex: 0.0
+    ssim: 0.0
+  lr:
+    use_warmup: false
+    points:
+      base_lr: 2.0e-3
+    topk_mlp:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    points_influ_scores:
+      type: "cosine-hlfperiod"
+      base_lr: 5.0e-3
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    bkg_points_pc_feats:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_points_influ_scores:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_points:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+eval:
+  dataset:
+    path: "data/nerf_synthetic/materials"
+    factor: 1
+  img_idx: 0 # index of the image to evaluate
+test:
+  load_path: "checkpoints/nerfsyn/materials/model.pth"
+  max_height: 100
+  max_width: 100
+  datasets:
+    - name: "testset"
+      path: "data/nerf_synthetic/materials"
+      factor: 1

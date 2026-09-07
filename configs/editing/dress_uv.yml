@@ -1,0 +1,472 @@
+# Paths below are release-relative. This is the archived config with only its
+# path fields rewritten; every other key is unchanged, so it merges against
+# configs/{default,default_uv}.yml exactly as it did when the checkpoint was trained.
+index: "dress1-fish1-f1-george-knnF-5k-BKGAPPEND-embedv-IN10k-K20-KQVl2-scaledAttnGammaOG-WU-initIF1-noDumb-q5k13v2-scoreNoAct-spLoss01bd5-stats-noCwu-4charts-seed3"
+load_path: "demo/dress/papr.pth"
+save_dir: "./experiments/editing/dress_uv" # folder to save the model to
+use_amp: true # use automatic mixed precision
+max_num_pts: 10000 # upper bound of total number of points, set to -1 to disable
+rnd_background: false
+rnd_background_use_dumb_constant: false
+# Not read by any code. The same cloud is loaded through geoms.points.load_path below,
+# which is read; this key is the archived duplicate of that path.
+original_control_points_path: "demo/dress/control_points.ply"
+# Not read by any code, and not shipped. The deformed sequence reaches render_edit.py via
+# --pcd_dir (default: demo/dress/rbf_pcds). These archived clouds carry 15000 points against
+# the checkpoint's 10383, so edit/pcd.py would reject them anyway.
+deformed_control_points_folder: "data/sketchfab/dress1/dress-edit_pcd/"
+eval_deform_frames: [26, 35]  # unused in this release
+influ_scores_fuse_type: "add"
+seed: 3
+wandb:  # inert: this release has no wandb integration (train.py / train_uv.py never import it)
+  enabled: false  # nothing reads this block; setting it true logs nothing
+dataset:
+  path: "data/sketchfab/dress1"
+  factor: 2
+  batch_size: 100
+  load_gt_depth: true
+  save_gt_sp: false
+  gt_depth_dir: "2dgs/sketchfab_9999999999/dress/test/ours_30000/vis" # path to load the ground truth depth from
+  patches:
+    width: 16
+    height: 16
+texture:
+  use_sp_texture_map_as_intrinsic_v: false
+  pcd_geom_loss_weight: 1.0
+  uniform_geom_loss_weight: 1.0
+  pcd_texture_loss_weight: 0.1
+  uv_range_loss_weight: 1.0
+  use_mask: false
+  soft_pred_mask: false
+  soft_fuse_mask: true
+  fuse_uv_with_chart_probs: false
+  fuse_probs_before_softmax: false
+  chart_return_logits: true
+  rgb_use_pred_uvs: false
+  rgb_use_pred_chart_probs: false
+  mask_loss: false # use mask loss for the texture model
+  use_bkg_color: true # use background color in the texture model
+  use_bkg_score: true # use background features in the texture model
+  use_texture_model: false # use texture model or not
+  sp_fuse_type: position
+  divide_by_coord_scale: true
+  filter_noisy_points: "stats"
+  # filter_noisy_points_nb_neighbors: 20
+  # filter_noisy_points_std_ratio: 1.5
+  use_rayd: false
+  use_tcnn_encoder: true
+  encode_point_config:
+    otype: "Frequency"
+    n_frequencies: 6
+    with_self: true
+    pe_scale: 1.0
+  encode_rayd_config:
+    otype: "Frequency"
+    n_frequencies: 6
+    with_self: true
+    pe_scale: 1.0
+  network_config:
+    otype: "CutlassMLP"
+    activation: "ReLU"
+    output_activation: "None"
+    n_neurons: 256
+    n_hidden_layers: 7
+  use_v: false
+  embed_v: true
+  v_type: 2
+  v_dim: 39
+  encode_additional_dim_v: 0
+  network_v: false
+  encode_v_config:
+    otype: "Frequency"
+    n_frequencies: 6
+    with_self: true
+    pe_scale: 1.0
+  network_v_config:
+    otype: "FullyFusedMLP"
+    activation: "ReLU"
+    output_activation: "None"
+    n_neurons: 128
+    n_hidden_layers: 2
+geoms:
+  # rays:
+  #   perturb: true
+  #   perturb_sigma_factor: 1.0
+  points:
+    load_path: "demo/dress/control_points.ply"  # path to load the initial point cloud from, set to "" to disable
+    select_k: 20  # number of top-k nearby points to select from the point cloud for each ray
+    # select_k_rnd: true
+    # select_k_max: 100
+    select_k_type: "knn_frustum"
+    drop_points_max_ratio: 0.0
+    drop_points_max_ratio_schedule_type: "none"  # "none", "cosine", or "linear" - scheduler for dropout ratio (decays from max_ratio to 0)
+    drop_points_max_ratio_start_step: 0  # start step for dropout ratio scheduling
+    drop_points_max_ratio_end_step: -1  # end step for dropout ratio scheduling (-1 means use training.steps)
+    init_num: 10000
+    influ_init_func: "ones"
+    influ_init_val: 1 # initial influence score of each point
+    project: false
+    add_type: "clone"
+    add_sample_type: "acc-coord-grad-norm-cnt-max"
+    save_added_points: true
+    init_scale: [1.2, 1.2, 1.2] # initial scale of the point cloud, normalized by the coord_scale
+    init_center: [0.0, 0.0, 0.0]  # initial center of the point cloud, normalized by the coord_scale
+    # influ_min: -999
+    # influ_max: 999
+    # influ_act: "none"
+    # influ_init_func: "ones"
+    use_bkg_points: false
+    bkg_points_num: 10000
+    bkg_points_init_scale: [5.0, 5.0, 5.0]
+    bkg_points_influ_init_val: -1.0
+    bkg_points_embedv_learn: false
+    bkg_points_alpha_blend: false
+    bkg_points_add_noise: false  # add random Gaussian noise to background points every step
+    bkg_points_noise_std: 0.0  # standard deviation of Gaussian noise for background points
+    bkg_points_noise_max_clip: null  # maximum absolute value to clip noise (null = no clipping)
+    use_bkg_points_pc_feats_mlp: false  # use MLP to generate bkg_points_pc_feats from background color instead of learned feature vectors
+    use_bkg_points_pc_feats_mlp: true
+    bkg_points_pc_feats_encode_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      stop_gradient: false
+      pe_scale: 1.0
+    bkg_points_pc_feats_mlp_config:
+      otype: "FullyFusedMLP"
+      activation: "ReLU"
+      output_activation: "None"
+      n_neurons: 64
+      n_hidden_layers: 2
+  background:
+    learn_bkg_token: true
+    constant: 5.0 # constant background score
+models:
+  # topk_eps: 1.0e-6
+  # bkg_attn_act: "none"
+  # bkg_attn_scale: 1.0
+  normalize_topk_attn: false # normalize the top-k attention weights after softmax
+  point_on_ray_loss_type: "distance2"
+  point_on_ray_loss_mask_thresh: 0.5
+  point_on_ray_loss_norm_topk_attn: false
+  point_on_ray_loss_detach_points: true
+  point_on_ray_loss_use_gt_mask: true
+  point_on_ray_loss_erose_mask: true
+  point_on_ray_loss_erose_mask_iters: 1
+  point_to_sp_loss_mask_thresh: 0.5
+  point_to_sp_loss_distance_thresh: -1
+  point_to_sp_loss_norm_topk_attn: true
+  point_to_sp_loss_fuse_type: "position"
+  point_to_sp_loss_detach_attn: true
+  attn:
+    # append sphere intersection point as background point
+    append_bkg_points: true  # if true, append ray-sphere intersection point to topK points for each ray
+    # Note: sphere_radius and sphere_center moved to geoms.points.bkg_sphere_radius/bkg_sphere_center (unified config)
+    append_bkg_points_use_embedv: true  # if true, use a learned embedding for the appended background point
+    append_bkg_points_embedv_init_type: "randn"  # initialization type: "randn", "zeros", or "ones"
+    append_bkg_points_embedv_learn: true  # whether the embedding is learnable
+    append_bkg_points_alpha_blend: false  # if true, alpha blend the appended background point with background color
+    bkg_exp_scaler: false  # if true, use a learnable scaler to scale exp(bkg_score) in softmax attention
+    bkg_exp_scaler_init: 1.0  # initial value for the bkg_exp_scaler (default: 1.0, no scaling effect)
+    scale_bkg_token_by_num_bkg_points: false  # if true, scale the background token by the number of foreground points
+    scale_bkg_token_by_num_bkg_points_init: 1.0  # initial value of the scaler for the background token
+    shared_network: false
+    k_type: 13
+    q_type: 5
+    v_type: 2
+    output_dim_k: 128
+    output_dim_q: 128
+    output_dim_v: 3
+    score_act: "none"
+    score_scale: 1.0
+    use_score_scaler: false
+    # use_tcnn_encoder: false
+    # select_scores_topk: 20
+    scale_scores_by_dist: true
+    attn_score_dist_strategy: 'gamma'
+    attn_dist_power: 2
+    attn_dist_near_exp: 0 
+    attn_dist_far_exp: -3.0
+    attn_dist_min_spread: 2
+    scale_scores_by_dist_decay: 10.0
+    dist_prior_floor: 0.0
+    dist_prior_gamma: 1.0
+    network_k_config:
+      otype: "FullyFusedMLP"
+      activation: "LeakyReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 2
+    network_q_config:
+      otype: "FullyFusedMLP"
+      activation: "LeakyReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 2
+    network_v_config:
+      otype: "FullyFusedMLP"
+      activation: "LeakyReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 2
+    encode_k_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      pe_scale: 1.0
+    encode_q_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      pe_scale: 1.0
+    encode_v_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      pe_scale: 1.0
+  unet: # the UNet
+    use: false
+    last_act: "softplus_1_1_0"
+    # inp_scale: 10.0
+  topk_mlp:
+    learn: false
+    type: 2
+    minus_mean: false
+    learn_bias: false
+    loss_type: "bce"
+    quantile: 0.5
+    weight_quantile: true
+    start_step: -1
+    logit_scale: 1.0
+    means: []
+    init_weights: [2.0e-3]
+    weight_act: "none"
+    act_idxs: []
+training:
+  # topk_loss_weight: 0.01
+  point_on_ray_loss_start: 0
+  point_on_ray_loss_weight: 0.0
+  point_to_sp_loss_start: 0
+  point_to_sp_loss_stop: 0
+  point_to_sp_loss_weight: 0.0
+  gt_sp_loss_start: 0
+  gt_sp_loss_stop: 250000
+  gt_sp_loss_weight: 0.1
+  gt_sp_loss_scale_by_rgb_loss: false
+  gt_sp_loss_exclude_boundary: true
+  gt_sp_loss_boundary_width: 5
+  prune_steps: 500  # interval to prune the point cloud
+  prune_start: 10000  # start pruning after this step
+  prune_stop: 250000  # stop pruning after this step
+  prune_thresh: 1.01e-5  # influence score threshold to prune the point cloud
+  prune_thresh_list: []
+  prune_steps_list: []
+  prune_max_num: 2000  # maximum number of points to prune
+  prune_max_num_step: 50000  # maximum step to limit the number of points to prune
+  prune_type: "<" # prune points with influence scores smaller than the threshold ("<") or larger than the threshold (">")
+  add_steps: 1000 # interval to add new points
+  add_start: 15000  # start adding new points after this step
+  add_stop: 200000 # stop adding new points after this step
+  add_num: 1000 # number of points to add each time
+  losses: # loss weights
+    mse: 1.0
+    lpips: 0.01
+    lpips_alex: 0.0
+    ssim: 0.0
+  lr:
+    points:
+      base_lr: 1.0e-3
+    topk_mlp:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    points_influ_scores:
+      type: "cosine-hlfperiod"
+      base_lr: 5.0e-3
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    bkg_points_pc_feats:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_points_influ_scores:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_points:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+eval:
+  dataset:
+    path: "data/sketchfab/dress1"
+    factor: 2
+  img_idx: 0 # index of the image to evaluate
+test:
+  max_height: 100
+  max_width: 100
+  datasets:
+    - name: "testset"
+      path: "data/sketchfab/dress1"
+      factor: 2
+
+nuvo:
+  model:
+    hidden_dim: 256
+    num_layers: 8
+    c_num_layers: 8  # independent num_layers for ChartAssignmentMLP
+    num_charts: 4
+    use_tcnn: false
+    scale_by_pi: true
+    c_use_rayd: false
+    c_pe_degree: 1
+    t_pe_degree: 4
+    s_pe_degree: 4
+    c_bias_std: 0.0
+    t_bias_std: 0.1
+    s_bias_std: 1.0 # !!!
+    c_bias: 0.0
+    t_bias: 0.5
+    s_bias: 0.0
+    t_last_act: None
+    t_share_mlps: true
+    s_share_mlps: true
+  texture:
+    white_bkg: true
+    learnable_bkg_feat: true
+    texture_map_dim: 3
+    texture_map_res: 512
+    texture_map_act: None
+    texture_map_stop_uv_grad: true
+    texture_map_stop_prob_grad: true
+    train_argmax: false
+    use_texture_map: true
+    use_texture_mlp: false
+    texture_map_init_func: "zeros"
+    mlp:
+      share_mlps: true
+      use_rayd: false
+      use_uv: true
+      rayd_pe_degree: 4 # deprecated
+      pe_degree: 8
+      num_layers: 3
+      hidden_dim: 128
+      out_dim: 3
+      act_type: ReLU
+      last_act_type: Sigmoid
+  additional_texture:
+    use: true
+    white_bkg: false
+    learnable_bkg_feat: true
+    texture_map_dim: 3
+    texture_map_res: 512
+    interpolation_mode: "bilinear"
+    padding_mode: "zeros"
+    texture_map_act: Sigmoid
+    texture_map_stop_uv_grad: true
+    texture_map_stop_prob_grad: true
+    train_argmax: false
+    eval_argmax: false
+    use_texture_map: true
+    use_texture_mlp: false
+    texture_map_init_func: "zeros"
+  sample:
+    source: gt
+    papr_path: ""
+    papr_sample_radius: 4.0
+    papr_sample_hemi: False
+    data_path: "data/sketchfab/dress1"  # unused in this release
+    split: train
+    sp_fuse_type: projection
+    noise: -1
+    noise_pos_only: false
+    noise_along: ray
+    patch_size: 4
+  train:
+    project_name: Nuvo  # unused in this release (no wandb integration)
+    name: nuvo_dress  # unused in this release (no wandb integration)
+    iters: 10000
+    G_num: 5120
+    T_num: 5120
+    V_num: 5120
+    seed: 3
+    use_wandb: false  # unused in this release (no wandb integration)
+    texture_map_save_interval: 2000
+    uv_visualization_interval: 2000
+    val_views: [0, 19, 40]
+    fix_keys: [
+      # 'chart_assignment', 
+      # 'texture_coordinate', 
+      # 'surface_coordinate', 
+      # 'sigma', 
+      # 'texture_map',
+      # 'texture_mlp'
+    ]
+    # Chart assignment warmup settings
+    chart_assignment_warmup: false  # enable warmup training for chart assignment MLP
+    chart_assignment_warmup_iters: 1000  # number of warmup iterations
+    chart_assignment_warmup_batch_size: 4096  # batch size for warmup training
+    chart_assignment_warmup_lr: 1.0e-3  # learning rate for warmup
+    chart_assignment_warmup_log_interval: 100  # interval for logging warmup plots
+    chart_assignment_warmup_kmeans_iters: 50  # number of K-means iterations
+    # 6D clustering settings (positions + normals)
+    chart_assignment_use_6d: true  # use 6D features (positions + normals) for clustering
+    chart_assignment_clustering_init: "sklearn"  # initialization method: "fps" (farthest point sampling) or "sklearn" (auto-init)
+    chart_assignment_normal_weight: 1.0  # weight for normals relative to positions in 6D clustering
+    chart_assignment_normal_radius: null  # radius for normal estimation (null = auto)
+    chart_assignment_normal_max_nn: 30  # max neighbors for normal estimation
+    chart_assignment_knn_voting_k: 100  # number of neighbors for KNN voting cleanup (0 to disable)
+    chart_assignment_knn_voting_iters: 3  # number of KNN voting iterations
+    chart_assignment_sklearn_n_init: 10  # number of initializations for sklearn KMeans
+    chart_assignment_sklearn_random_state: 3  # random seed for sklearn KMeans
+    chart_assignment_max_steps: 1.0e+9
+    texture_coordinate_max_steps: 1.0e+9
+    surface_coordinate_max_steps: 1.0e+9
+    sigma_max_steps: 1.0e+9
+    texture_map_max_steps: 1.0e+9
+    texture_mlp_max_steps: 1.0e+9
+    texture_map_bkg_feat_max_steps: 1.0e+9
+    additional_texture_map_max_steps: 1.0e+9
+    additional_texture_mlp_max_steps: 1.0e+9
+    additional_texture_map_bkg_feat_max_steps: 1.0e+9
+    # Texture map training settings (Stage 2: after mapping MLPs are learned)
+    texture_train_iters: 10000  # number of iterations for texture map training
+    texture_train_save_interval: 2000  # interval for saving texture checkpoints
+  loss:
+    three_two_three: 1
+    two_three_two: 1
+    entropy: 0.04
+    surface: 10
+    cluster: 0.5
+    conformal: 0.0
+    jacobian_conformal: 0.4
+    stretch: 0.0
+    texture_map: 1
+    texture_map_tv: 0.0
+    texture_map_loss_weight_warmup_start_step: 0
+    texture_map_loss_weight_warmup_steps: 0
+    texture_map_loss_weight_warmup_type: linear
+  optimizer:
+    chart_assignment_lr: 1.0e-4
+    texture_coordinate_lr: 1.0e-4
+    surface_coordinate_lr: 1.0e-4
+    sigma_lr: 0.1
+    normal_grids_lr: 0.04
+    rgb_grids_lr: 0.04
+    texture_map_lr: 0.02
+    unet_lr: 0.04
+    texture_mlp_lr: 0.005
+    additional_texture_map_lr: 0.02
+    additional_texture_mlp_lr: 0.005
+    texture_map_bkg_feat_lr: 0.02
+    additional_texture_map_bkg_feat_lr: 0.02
+  # ckpt: output/checkpoint_0_499.ckpt

@@ -1,0 +1,1061 @@
+# ---------------------------------------------------------------------------------------------
+# Archived defaults, kept as they were so every scene config merges exactly as it did when its
+# checkpoint was trained. Most keys here are inert: they configure subsystems this release does
+# not ship. A key being present is not a claim that anything reads it. Where a value would actively mislead -- a filename that
+# does not exist, a mode the code refuses -- it is marked below.
+# ---------------------------------------------------------------------------------------------
+index: "lego" # this is the name of the experiment
+load_path: "" # path to load the model from
+save_dir: "./experiments" # folder to save the model to
+seed: 1 # random seed
+eps: 1.0e-6 # epsilon for numerical stability
+use_amp: true # use automatic mixed precision
+amp_dtype: "float16"
+scaler_min_scale: -1.0  # set a lower bound for the scaler for numerical stability
+max_num_pts: 30000 # upper bound of total number of points, set to -1 to disable
+attn_act: "softmax"
+attn_act_temp: 1.0
+detect_anomaly: false
+rnd_background: false
+rnd_background_start: 1.0e+9
+rnd_background_stop: 1.0e+8
+rnd_background_use_dumb_constant: false
+rnd_background_use_4_feats: true
+rnd_background_shift: 0.0
+mask_bkg_rays_thresh: -1.0  # unused in this release
+topk_dtype: "float32"
+train_frame: 1  # unused in this release
+animation_start_frame: 1
+animation_end_frame: 11
+obj_name: ""  # unused in this release
+save_name: ""  # unused in this release
+original_control_points_path: ""
+deformed_control_points_folder: ""  # unused in this release
+eval_deform_frames: []  # unused in this release
+influ_scores_fuse_type: "multiply"
+rescale_bkg_points_for_attn: false
+rescale_bkg_points_for_attn_scale: 1.0
+wandb:  # inert: this release has no wandb integration (train.py / train_uv.py never import it)
+  enabled: false  # nothing reads this block; setting it true logs nothing
+  project: "pointgt"  # wandb project name
+  entity: null  # wandb entity (username or team name), set to null for personal account
+  name: null  # experiment name, set to null to use auto-generated name
+  tags: []  # list of tags for the experiment
+  notes: ""  # notes about the experiment
+  config: {}  # additional config to log to wandb
+feats_proj_mlp:
+  use: false
+  n_hidden_layers: 2
+  hidden_dim: 1024
+  output_dim: 64
+  learnable: true
+  lr: 1.0e-3
+texture:
+  sample_rays_skip: 1
+  use_sp_texture_map_as_intrinsic_v: false
+  combine_sp_texture: false
+  use_sp_texture_only: false
+  rgb_use_fused_feats: false
+  rgb_use_sp_feats: false
+  rgb_use_fused_feats_only: false
+  rgb_use_sp_feats_only: false
+  rgb_use_additional_feats_only: false
+  pcd_geom_loss_weight: 0.0
+  uniform_geom_loss_weight: 1.0
+  pcd_texture_loss_weight: 0.0
+  texture_map_loss_weight: 0.0
+  sp_texture_map_loss_weight: 0.0
+  sp_texture_map_loss_start_step: 0
+  sp_texture_map_loss_end_step: 1.0e+9
+  uv_range_loss_weight: 0.0
+  use_combine_network: false
+  combine_network_input_both: false
+  combine_sp_texture_by_adding: false
+  combine_sp_texture_add_to_both: false
+  
+  feature_map_dropout_rate: 0.0
+  feature_map_noise_std: 0.0
+  use_mask: false # use mask for the texture model
+  soft_pred_mask: false
+  soft_fuse_mask: false
+  fuse_uv_with_chart_probs: true
+  fuse_probs_before_softmax: true
+  chart_return_logits: false
+  rgb_use_pred_uvs: false
+  rgb_use_pred_chart_probs: false
+  geom_use_pred_uvs: false
+  geom_use_pred_chart_probs: false
+  rgb_detach_points_in_pcd: false
+  filter_noisy_points: "none"
+  filter_noisy_points_nb_neighbors: 20
+  filter_noisy_points_std_ratio: 1.5
+  use_attn_mask: false
+  mask_loss: false # use mask loss for the texture model
+  use_bkg_color: true # use background color in the texture model
+  use_bkg_score: true
+  use_bkg_attn_mask: false
+  use_texture_model: false # use texture model or not
+  use_instant_ngp: true  # Enable instant-ngp texture model
+  
+  # Instant-NGP specific parameters (based on Neuralangelo ingp_blender.yaml)
+  ingp_min_logres: 4        # Base resolution: 2^4 = 16
+  ingp_max_logres: 12        # Max resolution: 2^12 = 4096  
+  ingp_n_levels: 16         # Number of hash grid levels
+  ingp_features_per_level: 4 # Features per level
+  ingp_hashmap_size: 19     # Hash table size: 2^19 entries
+  ingp_range_min: -5.0       # Spatial range minimum
+  ingp_range_max: 5.0        # Spatial range maximum
+  ingp_normalize_pts: false
+  # Coarse-to-fine training parameters
+  ingp_coarse2fine_enabled: true
+  ingp_init_active_levels: 4
+  ingp_coarse2fine_step: 5000
+  ingp_warm_up_end: 0
+  
+  # Existing parameters (still used)
+  # use_rayd: true
+  # zero_rayd_prob: 0.0
+  # detach_points_3d: false
+  # use_mask: true
+  # use_bkg_attn_mask: true
+
+  sp_fuse_type: projection
+  divide_by_coord_scale: true
+  use_rayd: false
+  use_tcnn_encoder: true
+  detach_points_3d: false
+  zero_rayd_prob: -1
+  encode_featmap_config:
+    otype: "Frequency"
+    n_frequencies: 0
+    with_self: true
+    pe_scale: 1.0
+  encode_point_config:
+    otype: "Frequency"
+    n_frequencies: 6
+    with_self: true
+    pe_scale: 1.0
+  encode_rayd_config:
+    otype: "Frequency"
+    n_frequencies: 6
+    with_self: true
+    pe_scale: 1.0
+  network_config:
+    otype: "FullyFusedMLP"
+    activation: "ReLU"
+    output_activation: "None"
+    n_neurons: 128
+    n_hidden_layers: 4
+  use_v: false
+  embed_v: false
+  v_type: 1
+  v_dim: 32
+  v_weight: 1.0
+  v_weight_warmup_steps: 0
+  v_detach: false
+  encode_additional_dim_v: 0
+  fuse_v_with_nuvo_texture_map: false
+  network_v: true
+  encode_v_config:
+    otype: "Frequency"
+    n_frequencies: 6
+    with_self: true
+    pe_scale: 1.0
+  network_v_config:
+    otype: "FullyFusedMLP"
+    activation: "ReLU"
+    output_activation: "None"
+    n_neurons: 128
+    n_hidden_layers: 7
+dataset:
+  mode: "train" # train or test set
+  load_gt_sp: false
+  coord_scale: 10.0 # scale the global coordinate by this factor, larger scale helps with geometry details in the point cloud, but not always larger the better
+  type: "synthetic" # the only loader in this release; any other value raises at load time
+  white_bg: true  # use white or black background
+  bg_color: [1.0, 1.0, 1.0]  # background color when using white_bg, values should be in [0, 1]
+  path: "./data/nerf_synthetic/lego/"
+  num_workers: 8
+  frame: 1775
+  factor: 1 # downsample the target images by this factor
+  batch_size: 1
+  shuffle: true
+  extract_patch: true # extract patches from the target images
+  extract_online: true  # set to false if you have enough memory to load all the patches into memory before training
+  read_offline: true # set to true if you have enough memory to load all the images into memory before training
+  load_gt_depth: false
+  gt_depth_dir: "" # path to load the ground truth depth from
+  save_gt_sp: false
+  patches:
+    height: 160 # patch height
+    width: 160  # patch width
+    max_patches: 10 # maximum number of patches to extract from each image (if extract_online is false)
+cubemap_texture:
+  # RGB cubemap settings (for background color blending)
+  use_rgb: false  # If true, learn RGB cubemap for background color
+  resolution: 256  # Resolution of each face texture (H=W)
+  init_type: "random"  # Initialization type: "constant", "random", "randn"
+  init_value: 1.0  # Initial value for constant init (used as RGB value)
+  activation: "sigmoid"  # Activation for RGB cubemap: "sigmoid", "tanh", "none"
+  start_step: 0  # Step to start using cubemap textures (before this, uses bkg_color/fallback)
+  # Feature cubemap settings (separate cubemap for append_bkg_points_feats)
+  use_feature_map: false  # If true, learn a feature cubemap for append_bkg_points
+  feature_dim: null  # Feature dimension for cubemap (null = use pc_feat_opt.dim)
+  feature_resolution: null  # Resolution for feature cubemap (null = use resolution)
+  feature_init_type: null  # Init type for feature cubemap (null = use init_type)
+  feature_init_value: 0.0  # Initial value for feature cubemap
+  feature_activation: "none"  # Activation for feature cubemap: "sigmoid", "tanh", "none"
+  # Depth cubemap settings (learnable offset from sphere surface)
+  use_depth_map: false  # If true, learn a depth cubemap for background surface offset
+  depth_resolution: null  # Resolution for depth cubemap (null = use resolution)
+  depth_init_type: "constant"  # Init type for depth cubemap: "constant", "random", "randn"
+  depth_init_value: 0.0  # Initial value for depth cubemap (0 = no offset from sphere)
+  depth_scale: 1.0  # Scale factor for depth offset (multiplied by coord_scale internally)
+  # Note: sphere_radius_scale moved to geoms.points.bkg_sphere_radius (unified config)
+geoms:
+  no_additional_bkg: false  # If true, do not add any additional background token to the attention mechanism (no separate foreground/background handling)
+  append_sphere_bkg_points: false  # If true (and no_additional_bkg is true), append sphere-initialized background points to self.points (uses geoms.points.bkg_sphere_radius and bkg_sphere_center)
+  sphere_bkg_points_num: 1000  # Number of sphere background points to append
+  rays:
+    perturb: false
+    perturb_sigma_factor: 5.0
+    perturb_noise: "normal"
+  alpha:
+    use: false  # use alpha values for the points
+    init_val: 0.1  # initial value for the alpha values, should be in (0, 1)
+    reset: false
+    reset_val: 0.01
+    reset_steps: 1000 # reset the alpha values every this number of steps
+    reset_start: 10000 # start resetting the alpha values after this step
+    reset_stop: 200000 # stop resetting the alpha values after this step
+    act: "sigmoid"  # activation function for the alpha values
+    init_func: "ones"  # initialization function for the alpha values
+    normalize_topk_attn: true  # normalize the top-k attention weights after softmax
+    detach_attn: true
+    losses: # loss weights
+      mse: 1.0
+      lpips: 0.0
+      lpips_alex: 0.0
+      ssim: 0.0
+  points:
+    train_normals_only: false  # decoupled-normals mode: freeze all but points_normals (use with --load_path)
+    select_k: 20  # number of top-k nearby points to select from the point cloud for each ray
+    select_k_rnd: false
+    select_k_max: 20
+    # NOT IN THIS RELEASE -- the block from here to `influ_select_noise` configures the
+    # grid_knn and traversal-admission selectors, which need compiled CUDA kernels this
+    # release does not ship. `models/topk.py` implements `knn_frustum` and `d2r_z` only and
+    # raises on anything else. Nothing below reads these; they are kept so the archived
+    # configs merge unchanged.
+    knn_frustum_two_pass_factor: 2
+    grid_knn_variant: "tile"  # [grid_knn] "tile" (v2 cooperative, full frames) | "v1" (per-query, any query set)
+    grid_knn_max_ring: -1  # [grid_knn] ring cap (-1 exact; 1 = fast approx, measured dPSNR +0.000)
+    traversal_admit_mult: 1.5  # [traversal_admit] admission radius in sigma (R_ADMIT*sigma world-space perp cutoff)
+    traversal_eps_T: 1.0e-4  # [traversal_admit] TRAIN transmittance termination floor (slacker than deploy so termination-boundary slots see gradients)
+    traversal_eps_T_eval: 1.0e-3  # [traversal_admit] EVAL transmittance floor (deploy value)
+    traversal_n_min: 2  # [traversal_admit] rays with fewer than this many admitted slots get topped up with nearest-by-distance kNN (deduped, union slots valid)
+    traversal_admit_refresh: 1  # [traversal_admit] per-view admission cache: reuse a view's (sel,mask) for this many TRAIN visits before recompute (1 = recompute every visit = no cache; >1 caches; invalidated on point add/prune/load). Eval/test always fresh.
+    traversal_evict: false  # [traversal_admit] F20 contribution-gated slot budget: T accumulates over EVERY visited candidate; slots stored evict-lowest-alpha (no slots-full termination) so grazing rays spend budget at the surface. Train AND eval admission honor it (same contract both sides). Requires select_k in {5,10,20} (compiled kernel widths). false = legacy (slots-full) arm-1 contract.
+    traversal_smallk_variant: "faithful"  # [traversal_admit] small-K (select_k 5 or 10) traversal kernel variant: 'faithful' (NOT shipped here; the kernel it names is absent from this release) or 'bespoke' (optional faster variant). Ignored for select_k 20/40 (base kernel).
+    influ_select_near_frac: 0.5  # [knn_frustum_influ] fraction of K from influence-blind nearest pool (re-entry guarantee)
+    influ_select_noise: 0.0  # [knn_frustum_influ] training-time multiplicative exploration noise on biased ranking
+    # The two selectors this release implements are "knn_frustum" and "d2r_z"; anything else
+    # raises in models/topk.py. Seven shipped configs override this; drums, ficus and
+    # materials inherit d2r_z, which is what their archived runs used.
+    select_k_type: "d2r_z"  # pixel distance scaled by depth, over the whole cloud
+    pixel_frustum_margin: 1.0
+    knn_frustum_depth_scale: "none"  # unused in this release (the knn_frustum selector ignores it)
+    d2r_thresh: 2.0
+    drop_points_max_ratio: -1
+    drop_points_start_step: 0  # No dropout before step 1000
+    drop_points_max_ratio_schedule_type: "none"  # "none", "cosine", or "linear" - scheduler for dropout ratio (decays from max_ratio to 0)
+    drop_points_max_ratio_start_step: 0  # start step for dropout ratio scheduling
+    drop_points_max_ratio_end_step: -1  # end step for dropout ratio scheduling (-1 means use training.steps)
+    drop_fg_points_only: false
+    drop_points_sample_method: "random"  # "random", "fps", or "voxel_stratified"
+    drop_points_fps_random_start: false  # if true, FPS starts from a random point
+    drop_points_voxel_grid_resolution: 64  # relative voxel size: longest_bbox_axis / this value
+    drop_points_voxel_min_keep: 1  # minimum number of points to keep per occupied voxel
+    drop_points_voxel_random_within_voxel: true  # choose mandatory kept points randomly within each voxel
+    drop_points_voxel_jitter_frac: 0.0  # jitter voxel origin by +/-0.5*voxel_size*jitter_frac
+    select_k_sorted: false  # sort the indices of selected points by select_k_type
+    select_every_iter: 1  # update the selected points every this number of iterations
+    select_k_z_pow: 1.0  # power of the z coordinate when selecting points
+    select_k_cone_pow: 1.0
+    project: true  # project the points to the image plane
+    load_path: "" # path to load the point cloud from
+    prune_outside_bkg_sphere: false
+    gt_path: "" # path to load the ground truth point cloud from
+    init_type: "cube" # initialize the point cloud in a cube or on a sphere ("sphere")
+    init_scale: [1.2, 1.2, 1.2] # initial scale of the point cloud, normalized by the coord_scale
+    init_center: [0.0, 0.0, 0.0]  # initial center of the point cloud, normalized by the coord_scale
+    init_num: 3000 # initial number of points in the point cloud
+    add_type: "random"  # add points by interpolate add_k points randomly (or "mean", ...)
+    add_k: 3  # number of points to interpolate when adding new points
+    add_sample_type: "top-knn-std"  # determine where to add new points by sparsity ("top-knn-std") or ...
+    add_sample_k: 10  # number of points to consider when measuring sparsity or ...
+    add_sample_hybrid_w: 0.5  # weight for the hybrid method
+    save_added_points: false
+    move_scale: 1.0
+    influ_min: -999
+    influ_max: 999
+    influ_act: "none"
+    influ_init_func: "ones"
+    influ_init_val: 0.0 # initial influence score of each point
+    influ_scale: 1.0
+    influ_reset_eps: 1.0e-6
+    influ_reset_after_add: false
+    normalize_influ_scores_after_add: false
+    scaler_init_val: 1.0 # initial scaler value for each point (default: 1.0, no scaling)
+    scaler_learn: false # whether to learn the scaler (default: false)
+    scaler_init_func: "ones" # initialization function for scaler: "ones", "randn", or "rand"
+    # Point density estimation parameters
+    density_k: 30  # Number of nearest neighbors for density estimation
+    density_update_interval: 1000  # Update point density every T iterations (0 to disable periodic updates)
+    grad_noise_std: 0.0
+    add_noise: false
+    noise_std: 0.01
+    max_noise_norm: None
+    noise_annealing_type: None
+    end_noise_std: 0.0
+    use_bkg_points: false
+    bkg_points_num: 1000
+    bkg_points_init_scale: [5.0, 5.0, 5.0]
+    # Unified background sphere config for ray-sphere intersection
+    bkg_sphere_radius: 5.0  # Sphere radius as multiple of coord_scale (used for ray-sphere intersection)
+    bkg_sphere_center: [0.0, 0.0, 0.0]  # Center of the background sphere
+    bkg_points_influ_init_val: -1.0
+    bkg_points_given_color: false
+    bkg_points_influ_learn: false
+    bkg_points_given_embedv: false
+    bkg_points_embedv_init_type: "randn" # "randn" or "zeros" or "ones"
+    bkg_points_embedv_learn: false
+    bkg_points_alpha_blend: false
+    bkg_points_add_noise: false  # add random Gaussian noise to background points every step
+    bkg_points_noise_std: 0.0  # standard deviation of Gaussian noise for background points
+    bkg_points_noise_max_clip: null  # maximum absolute value to clip noise (null = no clipping)
+    use_bkg_points_pc_feats_mlp: false  # use MLP to generate bkg_points_pc_feats from background color instead of learned feature vectors
+    bkg_points_pc_feats_encode_config:
+      otype: "None"
+      n_frequencies: 0
+      with_self: true
+      stop_gradient: false
+      pe_scale: 1.0
+    bkg_points_pc_feats_mlp_config:
+      otype: "FullyFusedMLP"
+      activation: "ReLU"
+      output_activation: "None"
+      n_neurons: 64
+      n_hidden_layers: 2
+  background:
+    learnable: false  # learn the background color or not
+    learn_scaler: false  # learn the background scaler or not
+    learn_bkg_token: false
+    learn_score: false
+    init_color: [1.0, 1.0, 1.0] # initial background color, normalized by 255
+    constant: 5.0 # constant background score
+    use_dumb_constant: false
+  point_feats:
+    dim: 64 # dimension of the point features
+exposure_control:
+  use: false
+  shading_code_dim: 128 # dimension of the shading codes
+  shading_code_scale: 1.0 # scale the shading codes by this factor, use 8.0 for random generation
+  shading_code_num_samples: 20  # number of samples to generate the shading codes
+  shading_code_resample_iter: 10000 # number of iterations to resample the shading codes
+  shading_code_resample_size: 200 # number of samples to resample the shading codes
+  shading_code_resample_select_by: "psnr" # select the best samples by "psnr" or "lpips"
+  mapping_mlp:
+    num_layers: 8
+    dim: 256
+    act: "relu"
+    last_act: "relu+1"
+    use_wn: false
+    out_dim: 64
+models:
+  last_act: "none"  # last activation function to normalize the predicted rgb
+  normalize_topk_attn: true # normalize the top-k attention weights after softmax
+  topk_eps: 0.0
+  bkg_attn_act: "none"
+  bkg_attn_scale: 1.0
+  bkg_attn_shift: 0.0
+  bkg_attn_deno_thresh: -1
+  bkg_attn_sigmoid_scale: -1
+  point_on_ray_loss_type: "distance"
+  point_on_ray_loss_mask_thresh: -1
+  point_on_ray_loss_norm_topk_attn: false
+  point_on_ray_loss_detach_points: false
+  point_on_ray_loss_use_gt_mask: false
+  point_on_ray_loss_erose_mask: false
+  point_on_ray_loss_erose_mask_iters: 1
+  point_to_sp_loss_type: "distance"
+  point_to_sp_loss_mask_thresh: -1
+  point_to_sp_loss_distance_thresh: -1
+  point_to_sp_loss_norm_topk_attn: false
+  point_to_sp_loss_fuse_type: "position"
+  point_to_sp_loss_detach_attn: false
+  point_to_sp_loss_detach_sp: false
+  point_to_sp_loss_use_gt_mask: true
+  point_to_sp_loss_erose_mask: true
+  point_to_sp_loss_erose_mask_iters: 5
+  attn_type: "proximity"
+  self_attn:
+    score_act: "relu"
+    feat_type: 1
+    use_point_feats_input: false
+    use_attn_output_as_value: false
+    embed:
+      encode_config:
+        otype: "Frequency"
+        n_frequencies: 6
+        with_self: true
+        stop_gradient: false
+        pe_scale: 1.0
+      output_dim: 64
+      norm_in: "none"
+      norm_out: "none"
+      project: false
+      n_hidden_layers: 2
+      n_neurons: 32
+      act: "silu"
+      output_add_nonlinearity: true
+    transformer:
+      num_heads: 8
+      dim_feedforward: 256
+      dropout: 0.0
+      act: "relu"
+      norm_first: false
+      num_layers: 4
+  attn:
+    scale_scores_by_dist: false
+    scale_d2r_only: false
+    add_random_shift_to_vec_pd: false
+    attn_score_dist_strategy: 'gamma'
+    attn_dist_power: 2
+    attn_dist_near_exp: 0 
+    attn_dist_far_exp: -3.0
+    attn_dist_min_spread: 2
+    scale_scores_by_dist_decay: 10.0
+    dist_prior_floor: 0.0
+    dist_prior_gamma: 1.0
+    shared_network: false
+    # NOT IN THIS RELEASE -- factorized attention lives in a module that is not part of this
+    # tree. `use: false` everywhere, and models/papr.py refuses a
+    # config that sets it true.
+    factorized_score:
+      use: false
+      mode: "bilinear"  # bilinear | basis
+      num_basis: 16
+      sigma_min: 0.01    # basis mode only (world units)
+      sigma_max: 2.0
+      use_value: false   # also factorize the per-pair value MLP
+      value_basis: 16
+      use_gen: false     # generate tables from shared net + latents (from-scratch trainable)
+      bkg_color_value: false  # condition the bkg value slot on append_bkg_points_feats (color-affine; matches teacher mechanism under rnd_background)
+      use_fused_kernel: false  # fused CUDA fwd+bwd for the factorized pairs phase (K<=31, N=1, k13/bilinear; parity-gated)
+      use_opacity: false   # visibility-biased attention: factorized opacity head -> log-T logit bias
+      opacity_basis: 8
+      latent_dim: 16
+      gen_hidden: 128
+      dist_envelope: false        # analytic heavy-tail locality: logits -= beta*log1p((d2r/sigma)^2)
+      dist_envelope_beta: 3.0
+      dist_envelope_sigma: 0.72   # init, world units (~4x q90 attended d2r on lego); learnable
+      dist_envelope_learn_sigma: true
+      dist_envelope_on_opacity: true   # apply the same penalty to the opacity logit
+      dist_envelope_anisotropic: false   # per-point anisotropic Mahalanobis envelope (Phase 1, eager)
+      dist_envelope_aniso_exact: false   # Phase 1b: exact ray-ellipsoid Mahalanobis (min over ray, not Euclidean foot)
+      dist_envelope_aniso_scale_only: false   # control arm: per-point isotropic size only (orientation dofs dead)
+    use_pc_feats_directly: false
+    v_zero_prob: 0.0
+    pc_feats_act: "none"
+    use_sh: false
+    sh_degree: 3
+    sh_N_factor: 1.0
+    sh_degree_interval: 0.1
+    k_type: 1
+    q_type: 1
+    v_type: 1
+    prop_k_type: 1
+    prop_q_type: 1
+    attn_type: "cross"
+    score_act: "relu"
+    score_scale: 1.0
+    score_scale_learnable: false
+    score_scale_factor: 1.0
+    norm_in_k: "layernorm"
+    norm_in_q: "layernorm"
+    norm_out_k: "layernorm"
+    norm_out_q: "layernorm"
+    project_k: true
+    project_q: true
+    network_k: true
+    network_q: true
+    network_v: true
+    prop_network_k: false
+    prop_network_q: false
+    output_dim_k: 128
+    output_dim_q: 128
+    output_dim_v: 32
+    prop_output_dim_k: 128
+    prop_output_dim_q: 128
+    encode_additional_dim_v: 64 # typically same as geoms.point_feats.dim or 0
+    use_score_scaler: false
+    use_tcnn_encoder: true
+    select_prop_scores: false
+    select_prop_scores_topk: 20
+    select_prop_b: 999
+    prop_loss_type: "MSE"
+    select_v_scores: false
+    select_v_scores_topk: 20
+    select_v_scores_rnd: false
+    select_v_scores_topk_max: 20
+    network_k_config:
+      otype: "FullyFusedMLP"
+      activation: "ReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 4
+    network_q_config:
+      otype: "FullyFusedMLP"
+      activation: "ReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 4
+    network_v_config:
+      otype: "FullyFusedMLP"
+      activation: "ReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 7
+    prop_network_k_config:
+      otype: "FullyFusedMLP"
+      activation: "ReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 4
+    prop_network_q_config:
+      otype: "FullyFusedMLP"
+      activation: "ReLU"
+      output_activation: "None"
+      n_neurons: 128
+      n_hidden_layers: 4
+    encode_k_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      stop_gradient: false
+      pe_scale: 1.0
+    encode_q_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      stop_gradient: false
+      pe_scale: 1.0  
+    encode_v_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      stop_gradient: false
+      pe_scale: 1.0
+      # otype: "SphericalHarmonics"
+      # degree: 4
+    prop_encode_k_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      stop_gradient: false
+      pe_scale: 1.0
+    prop_encode_q_config:
+      otype: "Frequency"
+      n_frequencies: 6
+      with_self: true
+      stop_gradient: false
+      pe_scale: 1.0  
+    # self-attention over keys (used by render.py when enabled)
+    use_self_attn: false
+    use_self_attn_single_layer: true  # if true, use a single MultiheadAttention; else use TransformerEncoder
+    predict_hit: false
+    # append sphere intersection point as background point
+    append_bkg_points: false  # if true, append ray-sphere intersection point to topK points for each ray
+    # Note: sphere_radius and sphere_center moved to geoms.points.bkg_sphere_radius/bkg_sphere_center (unified config)
+    append_bkg_points_use_embedv: false  # if true, use a learned embedding for the appended background point
+    append_bkg_points_embedv_init_type: "randn"  # initialization type: "randn", "zeros", or "ones"
+    append_bkg_points_embedv_learn: true  # whether the embedding is learnable
+    append_bkg_points_alpha_blend: false  # if true, alpha blend the appended background point with background color
+    bkg_exp_scaler: false  # if true, use a learnable scaler to scale exp(bkg_score) in softmax attention
+    bkg_exp_scaler_init: 1.0  # initial value for the bkg_exp_scaler (default: 1.0, no scaling effect)
+    scale_bkg_token_by_num_bkg_points: false  # if true, scale the background token by the number of foreground points
+    scale_bkg_token_by_num_bkg_points_init: 1.0  # initial value of the scaler for the background token
+    transformer:
+      num_heads: 8
+      dim_feedforward: 256
+      dropout: 0.0
+      act: "relu"
+      norm_first: false
+      num_layers: 4
+      use_norm: true
+      use_xavier_init: false  # Set to true to use xavier_uniform_ initialization
+      init_gain: 1.0          # Only used if use_xavier_init=true
+  patch_gauss:
+    patch_size: 8
+    k_prime: 320
+    k_encoding: "ray_indep"        # "ray_indep" | "ray_relative"
+    center_ray: "mean"             # "mean" | "center_pixel"
+    sigma:
+      type: "learnable_per_pt"     # "fixed" | "learnable_scalar" | "learnable_per_pt" | "depth_scaled" | "combined"
+      init: 4.0                    # pixels; used as s_init = log(init) for learnable variants
+      min: 0.5                     # σ clamp floor in pixels (avoids σ→0 collapse)
+      max: 64.0                    # σ clamp ceiling in pixels
+      depth_scale_alpha: 1.0       # α in σ = α · f / d_k for "depth_scaled" (and combined together with exp(s_k))
+    background:
+      type: "explicit_slot"        # v1 implements explicit_slot only; "renormalize"/"hybrid_logit" reserved for v2
+      learnable_offset: false
+      offset_init: 0.0
+      use_existing_bkg_token: true
+    cross_attn:
+      d_model: 128
+      n_heads: 4
+      norm: "layer_norm"
+      learned_query_init_std: 0.02
+    v_encoding:
+      reuse_papr_v: true
+    pretopk:
+      reuse_select_k_type: true
+      max_candidates: 1024
+  unet: # the UNet
+    use: true
+    inp_scale: 1.0
+    bilinear: false
+    norm: "none"
+    single: true
+    act: "relu"
+    last_act: "none"
+    use_outc: true
+    affine_layer: -1
+    groups: 1
+    group_last: false
+    channel_factor: 1
+    double_channel: false
+    encode_config:
+      otype: "Identity"
+      scale: 1.0
+      offset: 0.0
+      with_self: false
+      n_frequencies: 6
+      pe_scale: 1.0
+      stop_gradient: false
+  refiner:
+    use: false                 # master gate; false = today's factorized exactly
+    input_mode: "rgb"          # Phase A: "rgb" only
+    width: 32
+    n_layers: 2
+    use_depth_guide: true
+    use_alpha_guide: true
+    band_limit_weight: 0.0     # w for lowpass(residual) penalty (sweep up if depth drifts)
+    band_limit_sigma: 2.0
+    base_rgb_loss_weight: 1.0
+    freeze_base: false
+  dual_value:
+    use: false                 # master gate; false = today's factorized exactly
+    feat_dim: 32
+    hidden: 64
+    base_w: 1.0          # weight of the base head's own rgb loss
+    render_base: false   # eval-time: true => return the BASE render (skip head)
+    full_decode: false   # "blend-then-decode": dual_head predicts the FULL fg
+                          # color, REPLACING the factorized value entirely (no
+                          # residual, no base head, no base loss). Requires use:true.
+    full_out_act: "sigmoid"  # output activation for the full_decode head
+                             # (sigmoid bounds color to [0,1]; unbounded raw
+                             # head collapses dark from cold-start). Ignored
+                             # in residual mode.
+    feat_init_std: 0.01  # std of points_view_feat init. Residual mode: ~0
+                         # (small correction). full_decode: set ~1.0 -- a near-
+                         # zero init makes the blended MLP input ~0 => constant
+                         # flat render at init (degenerate); features must carry
+                         # the whole signal.
+    mlp_init: "default"  # dual_head weight init: "default" (Kaiming-uniform) or
+                         # "xavier" (Glorot-uniform, bias 0).
+  fused_feature_mlp:
+    use: false
+    encode_config:
+      otype: "Identity"
+      scale: 1.0
+      offset: 0.0
+      with_self: false
+      n_frequencies: 6
+      pe_scale: 1.0
+      stop_gradient: false
+    mlp_config:
+      otype: "FullyFusedMLP"
+      activation: "ReLU"
+      output_activation: "None"
+      n_neurons: 64
+      n_hidden_layers: 2
+  topk_mlp:
+    learn: true
+    type: 2
+    minus_mean: false
+    learn_bias: false
+    loss_type: "bce"
+    quantile: 0.5
+    weight_quantile: true
+    start_step: -1
+    logit_scale: 1.0
+    means: []
+    init_weights: []
+    weight_act: "none"
+    act_idxs: []
+training:
+  grad_clip_norm: -1.0 # gradient clipping norm, set to -1.0 to disable
+  grad_clip_value: -1.0 # gradient clipping value, set to -1.0 to disable
+  alpha_attn_loss_weight: 0.0  # unused in this release
+  prop_reg_loss_weight: 0.0  # unused in this release
+  hit_loss_weight: 0.0  # unused in this release
+  influ_scores_norm_weight: 0.0  # unused in this release
+  influ_scores_mean_weight: 0.0  # unused in this release
+  bkg_reg_mask_thresh: -1.0  # unused in this release
+  bkg_reg_loss_weight: 0.0  # unused in this release
+  topk_loss_weight: 0.0  # unused in this release
+  # unused in this release: cubemap_tv_loss is not in REGULARIZER_NAMES, so these four never dispatch
+  cubemap_tv_loss_weight: 0.0
+  cubemap_tv_loss_start: 0  # start step for cubemap TV loss
+  cubemap_tv_loss_stop: 1000000  # stop step for cubemap TV loss
+  cubemap_tv_loss_schedule: "constant"  # schedule type: constant, cosine, cosine_decay, cosine_warmup
+  point_on_ray_loss_start: -1
+  point_on_ray_loss_stop: 1.0e+9
+  point_on_ray_loss_weight: 0.0
+  point_on_ray_loss_scale_by_rgb_loss: false
+  point_on_ray_loss_schedule: "constant"  # schedule type: constant, cosine, cosine_decay, cosine_warmup
+  point_to_sp_loss_start: -1
+  point_to_sp_loss_stop: 1.0e+9
+  point_to_sp_loss_weight: 0.0
+  point_to_sp_loss_scale_by_rgb_loss: false
+  point_to_sp_loss_schedule: "constant"  # schedule type: constant, cosine, cosine_decay, cosine_warmup
+  if_score_var_loss_start: -1
+  if_score_var_loss_stop: 1.0e+9
+  if_score_var_loss_weight: 0.0
+  if_score_var_loss_scale_by_rgb_loss: false
+  if_score_var_loss_schedule: "constant"  # schedule type: constant, cosine, cosine_decay, cosine_warmup
+  alpha_loss_start: -1
+  alpha_loss_stop: 1.0e+9
+  alpha_loss_weight: 0.0
+  alpha_loss_scale_by_rgb_loss: false
+  alpha_loss_schedule: "constant"  # schedule type: constant, cosine, cosine_decay, cosine_warmup
+  influ_large_loss_start: -1
+  influ_large_loss_stop: 1.0e+9
+  influ_large_loss_weight: 0.0  # encourage influence scores above influ_large_loss_thresh (softplus hinge)
+  influ_large_loss_scale_by_rgb_loss: false
+  influ_large_loss_schedule: "constant"  # schedule type: constant, cosine, cosine_decay, cosine_warmup
+  influ_large_loss_thresh: 1.0
+  gt_pcd_loss_start: -1
+  gt_pcd_loss_stop: 1.0e+9
+  gt_pcd_loss_weight: 0.0
+  gt_pcd_loss_scale_by_rgb_loss: false
+  gt_pcd_loss_schedule: "constant"  # schedule type: constant, cosine, cosine_decay, cosine_warmup
+  gt_sp_loss_start: -1
+  gt_sp_loss_stop: 1.0e+9
+  gt_sp_loss_weight: 0.0
+  gt_sp_loss_scale_by_rgb_loss: false
+  gt_sp_loss_schedule: "constant"  # schedule type: constant, cosine, cosine_decay, cosine_warmup
+  gt_sp_loss_exclude_boundary: false  # if true, exclude boundary pixels from gt_sp_loss computation
+  gt_sp_loss_boundary_width: 1  # width of the boundary in pixels to exclude (only used if gt_sp_loss_exclude_boundary is true)
+  deformed_sp_loss_weight: 0.0  # unused in this release
+  intxn_loss_weight: 0.0  # unused in this release
+  opacity_sharpness_loss_weight: 0.0  # unused in this release (with its _start/_stop/_schedule/_scale_by_rgb_loss)
+  opacity_sharpness_loss_start: -1000000000
+  opacity_sharpness_loss_stop: 1000000000
+  opacity_sharpness_loss_schedule: "constant"
+  opacity_sharpness_loss_scale_by_rgb_loss: false
+  surface_planarity_loss_weight: 0.0  # unused in this release (with its _start/_stop/_schedule/_scale_by_rgb_loss/_knn/_subsample)
+  surface_planarity_loss_start: -1000000000
+  surface_planarity_loss_stop: 1000000000
+  surface_planarity_loss_schedule: "constant"
+  surface_planarity_loss_scale_by_rgb_loss: false
+  surface_planarity_loss_knn: 12
+  surface_planarity_loss_subsample: 8000
+  normal_consistency_loss_weight: 0.0  # unused in this release (with its _start/_stop/_schedule)
+  normal_consistency_loss_start: -1000000000
+  normal_consistency_loss_stop: 1000000000
+  normal_consistency_loss_schedule: "constant"
+  depth_distortion_loss_weight: 0.0  # unused in this release (with its _start/_stop/_schedule)
+  depth_distortion_loss_start: -1000000000
+  depth_distortion_loss_stop: 1000000000
+  depth_distortion_loss_schedule: "constant"
+  use_compile: false          # unused in this release (nothing calls torch.compile)
+  use_compile_loss: false      # unused in this release
+  compile_mode: "default"       # unused in this release
+  compile_backend: null         # unused in this release
+  steps: 250000 # number of training steps
+  prune_steps: 500  # interval to prune the point cloud
+  prune_start: 10000  # start pruning after this step
+  prune_stop: 150000  # stop pruning after this step
+  prune_thresh: 0.0  # influence score threshold to prune the point cloud (used if other methods are not set)
+  prune_thresh_start: null  # starting prune threshold (if set with prune_thresh_end, linearly interpolates between them)
+  prune_thresh_end: null  # ending prune threshold (if set with prune_thresh_start, linearly interpolates between them)
+  prune_thresh_quantile: null  # quantile of influence scores to use as threshold (e.g., 0.1 prunes bottom 10%), takes precedence over start/end threshold interpolation
+  prune_thresh_quantile_start: null  # starting quantile (if set with quantile_end, linearly interpolates between them)
+  prune_thresh_quantile_end: null  # ending quantile (if set with quantile_start, linearly interpolates between them)
+  prune_thresh_list: [] # change the threshold at steps in prune_steps_list, takes highest precedence if non-empty
+  prune_steps_list: []
+  prune_max_num: 999999999  # maximum number of points to prune
+  prune_max_num_step: -1  # maximum step to limit the number of points to prune
+  prune_type: "<" # prune points with influence scores smaller than the threshold ("<") or larger than the threshold (">")
+  prune_by: "influ_score" # prune points by influence scores or by distance to the rays ("d2r")
+  add_steps: 1000 # interval to add new points
+  add_start: 20000  # start adding new points after this step
+  add_stop: 70000 # stop adding new points after this step
+  add_num: 1000 # number of points to add each time
+  add_num_list: []
+  add_steps_list: []
+  exclude_keys: [  # skip loading state_dict keys containing these substrings
+    # "points",
+    # "points_influ_scores",
+    # "points_scaler",
+    # "pc_feats",
+    # "proximity_attn",  # includes model_v and non-model_v attention params
+    # "mapping_mlp",
+    # "topk_mlp",
+    # "bkg_points",
+  ]
+  fix_keys: [  # freeze these optimizer groups during training
+    # "points",
+    # "points_influ_scores",
+    # "points_scaler",
+    # "pc_feats",
+    # "points_alpha",
+    # "attn",  # backward-compatible alias; also fixes attn_v/attn_other (+ Muon/Adam splits)
+    # "attn_v",
+    # "attn_other",
+    # "unet",
+    # "mapping_mlp",
+    # "topk_mlp",
+    # "bkg_feats",
+    # "bkg_points",
+  ]
+  losses: # loss weights
+    mse: 1.0
+    lpips: 0.01
+    lpips_alex: 0.0
+    ssim: 0.0
+  lr:
+    lr_factor: 1.0  # learning rate factor, multiply all the learning rates by this factor
+    optim_type: "Adam"  # optimizer type, "Adam" or "AdamW"
+    eps: 1.0e-8  # epsilon for the optimizer
+    use_amsgrad: false  # use amsgrad for the optimizer
+    beta1: 0.9  # beta1 for the optimizer
+    beta2: 0.999  # beta2 for the optimizer
+    use_warmup: true  # use warmup for the optimizer
+    mapping_mlp:
+      type: "none"
+      base_lr: 1.0e-6
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    topk_mlp:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    attn:
+      type: "cosine"
+      base_lr: 3.0e-4
+      muon_base_lr: 3.0e-4  # unused in this release
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+      muon_weight_decay: 0  # unused in this release
+      muon_momentum: 0.95  # unused in this release
+      muon_nesterov: true  # unused in this release
+    attn_v:  # not consulted: the attn_v optimizer takes its schedule from training.lr.attn
+      type: "cosine"
+      base_lr: 3.0e-4
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    attn_other:  # not consulted: the attn_other optimizer takes its schedule from training.lr.attn
+      type: "cosine"
+      base_lr: 3.0e-4
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    points:
+      type: "cosine"
+      base_lr: 2.0e-3
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    bkg_feats:
+      type: "none"
+      base_lr: 0.0
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_scaler:
+      type: "cosine"
+      base_lr: 1.0e-2
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    bkg_exp_scaler:
+      type: "cosine"
+      base_lr: 1.0e-2
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    bkg_score:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    points_influ_scores:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    points_scaler:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    points_normals:    # learnable per-point surface normals (oriented-surface stack)
+      type: "cosine"
+      base_lr: 1.0e-2  # normals init from randn -> want fast convergence
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    points_alpha:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    feats: 
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    factorized:   # factorized score/value tables (defaults mirror feats)
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_token:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    unet:
+      type: "cosine"
+      base_lr: 1.0e-4
+      muon_base_lr: 1.0e-4  # unused in this release
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+      muon_weight_decay: 0  # unused in this release
+      muon_momentum: 0.95  # unused in this release
+      muon_nesterov: true  # unused in this release
+    # dual-value head lr keys: defaults REPLICATE the code's getattr fallbacks
+    # (points_view_feat -> lr.points; dual_head -> lr.unet) so adding them is a
+    # no-op for existing configs, but lets a config OVERRIDE them (update_dict
+    # requires the key to exist in the defaults).
+    points_view_feat:
+      type: "cosine"
+      base_lr: 2.0e-3
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    dual_head:
+      type: "cosine"
+      base_lr: 1.0e-4
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_points_pc_feats:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_points_influ_scores:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_points:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    bkg_points_embedv:
+      type: "cosine"
+      base_lr: 1.0e-2
+      factor: 1
+      warmup: 0
+      weight_decay: 0
+    fused_feature_mlp:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    cubemap_textures:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+    cubemap_depth_textures:
+      type: "cosine"
+      base_lr: 1.0e-3
+      factor: 1
+      warmup: 10000
+      weight_decay: 0
+eval:
+  dataset:
+    name: "testset"
+    mode: "test"
+    load_gt_sp: false
+    extract_patch: false
+    type: "synthetic"
+    white_bg: true
+    bg_color: [1.0, 1.0, 1.0]  # background color when using white_bg, values should be in [0, 1]
+    path: "./data/nerf_synthetic/lego/"
+    factor: 1
+    num_workers: 0
+    num_slices: -1  # unused in this release
+  step: 5000  # evaluate the model every this number of steps
+  animate_step: 20000  # unused in this release
+  img_idx: 50 # index of the image to evaluate
+  max_height: 100 # maximum size for each loop when rendering a full image, if the image is too large, it will be rendered in multiple loops due to memory constraints
+  max_width: 100
+  save_fig: true # save the log images during training
+test:
+  load_path: "" # path to load the model from for testing
+  save_fig: true  # save the log images during testing
+  save_video: false  # unused in this release
+  max_height: 100
+  max_width: 100
+  datasets:
+    - name: "testset"
+      mode: "test"
+      load_gt_sp: false
+      extract_patch: false
+      type: "synthetic"
+      white_bg: true
+      bg_color: [1.0, 1.0, 1.0]  # background color when using white_bg, values should be in [0, 1]
+      path: "./data/nerf_synthetic/lego/"
+      factor: 1
+      num_workers: 0
+      num_slices: -1  # unused in this release
+  plots:  # unused in this release: no plot/video export is implemented
+    pcrgb: true  # unused in this release
+    featattn: false  # unused in this release

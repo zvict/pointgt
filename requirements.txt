@@ -1,0 +1,120 @@
+# PointGT — Python dependencies.
+#
+# Pin policy: anything that can move a rendered pixel is pinned exactly; everything else gets a
+# compatible range held to the major (or, for a native library, the minor) that was verified.
+#
+# The exact pins, and why each one is not a range:
+#
+#   torch        kernel selection, reduction order and AMP behaviour all changed across minors.
+#   torchvision  not imported by this repository directly, but it is what lpips and piq load their
+#                pretrained backbones through — LPIPS reporting pulls VGG16_Weights.IMAGENET1K_V1
+#                out of torchvision. A different torchvision means different weights and therefore
+#                a different LPIPS.
+#   numpy        2.x changed default integer promotion and several casting rules; point-cloud
+#                initialisation and the PLY reader in utils/ply.py both run through numpy.
+#   piq          supplies the SSIM that utils/metrics.py reports. Kernel size, padding and the
+#                downsampling step are internal to piq and not part of its API contract, so a
+#                different release can report a different SSIM for identical images. (Training SSIM
+#                is this repository's own kernel in models/losses.py and is unaffected — the two
+#                SSIMs differ on purpose; see that module.)
+#   lpips        the perceptual term in the training loss, not just a metric. 0.1.4 is the version
+#                whose linear-head weights the released checkpoints were trained against.
+#   open3d       selects which surface points survive into the texture fit; see its own block below.
+#
+# Every version below was imported and read back on the machine that produced the released numbers:
+# Python 3.11.14, CUDA 12.8, RTX 3090 (sm_86).
+
+# --------------------------------------------------------------------------------------------
+# Exact pins — these move the numbers
+# --------------------------------------------------------------------------------------------
+# Install torch and torchvision first, from the CUDA index that matches your driver (README step 1):
+#   pip install torch==2.10.0 torchvision==0.25.0 --index-url https://download.pytorch.org/whl/cu128
+# The bare pins below are then already satisfied by the +cu128 local versions, so this file will not
+# pull a CPU wheel over the top of them. There is no CPU fallback for training or rendering.
+torch==2.10.0
+torchvision==0.25.0
+numpy==2.3.5
+piq==0.8.0
+lpips==0.1.4
+
+# open3d is pinned, not ranged, and it is required rather than optional. Stage b reaches it: the
+# shipped configs/editing/dress_uv.yml sets `texture.filter_noisy_points: "stats"`, and
+# uv/sampling.py calls open3d's remove_statistical_outlier unconditionally on that path. Which
+# points that filter drops is exactly which points the texture is then fitted to, so its version is
+# part of the result, not an implementation detail.
+#
+# Two things to know about this dependency. It is imported lazily, inside the functions that use it,
+# so the seven NeRF-Synthetic scenes in configs/nerfsyn/ never load it and are unaffected if it is
+# missing or broken. And open3d 0.18 against numpy >= 2 segfaults when it converts float32 point
+# arrays inside a live CUDA process — the call sites cast to float64 first, deliberately, which is
+# numerically identical and is the difference between the filter running and the process dying.
+# utils/ply.py exists for the same reason: PLY reading and writing is pure numpy here so that
+# training never has to load open3d at all.
+open3d==0.18.0
+
+# --------------------------------------------------------------------------------------------
+# Ranged — I/O, progress reporting and config plumbing
+# --------------------------------------------------------------------------------------------
+scipy>=1.11,<2            # cKDTree for point-add statistics; Delaunay for the UV bounding hull
+PyYAML>=6.0,<7            # the config system
+imageio>=2.31,<3          # image read/write, via the frozen imageio.v2 API
+tqdm>=4.60,<5             # progress bars in train_uv.py and uv/sampling.py; display only
+
+# Pillow is held to the major that was verified, not opened wide, because it is on a numerics path
+# for one shipped config. dataset/load_nerfsyn.py downsamples with Image.resize() and deliberately
+# passes no `resample`, so PIL's default (bicubic) is baked into the training targets whenever
+# dataset.factor > 1 -- which configs/editing/dress_uv.yml sets to 2. A Pillow major that changed
+# that default, or its resize kernel, would silently change what the model is fitted to.
+Pillow>=11.0,<12
+
+# scikit-learn is imported lazily and only by the chart-assignment warmup, which is off in every
+# shipped config (`nuvo.train.chart_assignment_warmup: false`), so nothing you can run out of the
+# box touches it. It is listed anyway because turning that flag on is a supported thing to do and
+# the import would otherwise fail at runtime. If you do enable the warmup, pin this exactly: KMeans
+# initialisation and tie-breaking decide the chart labels. Verified here at 1.5.2.
+scikit-learn>=1.3,<2
+
+# --------------------------------------------------------------------------------------------
+# Optional
+# --------------------------------------------------------------------------------------------
+# download.py prefers huggingface_hub (resumable, retried, honours HF_TOKEN for a gated repo) and
+# falls back to a plain stdlib urllib GET when it is absent. Nothing else in the repository imports
+# it. Drop this line if you would rather fetch the checkpoints by hand.
+huggingface_hub>=0.20,<1
+
+# --------------------------------------------------------------------------------------------
+# CUDA extensions — NOT installable from PyPI, so they are not listed above
+# --------------------------------------------------------------------------------------------
+# Both are compiled against your torch build and your local nvcc. `pip install -r requirements.txt`
+# cannot install either one; do them separately, after torch, with CUDA_HOME set:
+#
+#   tiny-cuda-nn 2.0 (torch bindings) — the MLPs and encodings in models/{attention,features}.py
+#                                       and uv/nuvo.py
+#     export CUDA_HOME="$CONDA_PREFIX"
+#     export TCNN_CUDA_ARCHITECTURES=86        # 86 = RTX 3090; set yours to avoid a 40-minute build
+#     pip install "git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch"
+#
+#     Install it from NVlabs, not from a fork. Upstream's signature is
+#         tcnn.Network(n_input_dims, n_output_dims, network_config, seed=1337)
+#     A widely-mirrored fork inserts a required second positional argument, which silently
+#     misassigns n_output_dims and breaks every call site in this repository.
+#     Verify after installing:
+#         python -c "import inspect,tinycudann as t; print(inspect.signature(t.Network.__init__))"
+#     must print (self, n_input_dims, n_output_dims, network_config, seed=1337).
+#
+#   PyTorch3D 0.7.9 — knn_points in models/topk.py and uv/sampling.py, chamfer_distance in
+#                     models/regularizers.py and uv/losses.py
+#     pip install "git+https://github.com/facebookresearch/pytorch3d.git@v0.7.9"
+#
+# Verified versions on the reference machine: tinycudann 2.0, pytorch3d 0.7.9.
+
+# --------------------------------------------------------------------------------------------
+# Deliberately absent
+# --------------------------------------------------------------------------------------------
+# plyfile  utils/ply.py reads and writes PLY with numpy alone, so no PLY library is needed. It
+#          reads to float64 specifically so the downstream cast reproduces open3d's bits exactly.
+# 2DGS     depth supervision consumes the float32 TIFFs 2DGS writes into its `vis/` directory
+#          (depth_00000.tiff, ...). dataset/dataset.py's DEPTH_EXTENSIONS also accepts .npy and
+#          .png, for depth from anywhere else. The TIFF read is bit-identical with and without
+#          `tifffile` on the path, so it is not pinned. 2DGS itself is trained separately, in its
+#          own environment, and is not a dependency of this repository. See the README.

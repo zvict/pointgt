@@ -1,0 +1,95 @@
+# ------------------------------------------------------------------------------------------------
+# Python
+# ------------------------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtualenvs. There is nothing to install here, but people make them anyway.
+.venv/
+venv/
+env/
+ENV/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+
+# ------------------------------------------------------------------------------------------------
+# Data and run artifacts
+#
+# None of these belong in the repository. They are large, they are regenerable, and a single stray
+# `git add -A` after a training run would otherwise commit gigabytes. Fetch them with
+# `python download.py`, or produce them by training.
+#
+#   data/         NeRF Synthetic + sketchfab renderings; see the README's dataset layout
+#   checkpoints/  download.py --what checkpoints
+#   demo/         download.py --what demo (dress frames, edited point clouds, texture map)
+#   experiments/  train.py output: per-run logs, renders and saved models
+#   results/      test.py output: rendered frames and metric dumps
+#   2dgs/         2DGS depth maps, trained separately; POINTGT_2DGS_ROOT overrides the location
+# ------------------------------------------------------------------------------------------------
+data/
+checkpoints/
+demo/
+experiments/
+results/
+2dgs/
+
+# Weight and geometry files anywhere in the tree, as a backstop for the directory rules above.
+# Nothing tracked in this repository has one of these extensions.
+*.pth
+*.pt
+*.ckpt
+*.ply
+
+# Logs and stray run output
+*.log
+*.out
+wandb/
+
+# ------------------------------------------------------------------------------------------------
+# Editors
+# ------------------------------------------------------------------------------------------------
+.vscode/
+.idea/
+.cursor/
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.#*
+\#*\#
+
+# ------------------------------------------------------------------------------------------------
+# OS noise
+# ------------------------------------------------------------------------------------------------
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# The research repository's root .gitignore excludes *.yml and *.png, which would silently drop
+# every config and every README figure in this release. Re-include them. Harmless once this
+# directory is its own repository.
+!*.yml
+!configs/**/*.yml
+!images/
+!images/*.png
+
+# huggingface_hub's local_dir mode writes this under --dest, which defaults to the release root.
+.cache/
